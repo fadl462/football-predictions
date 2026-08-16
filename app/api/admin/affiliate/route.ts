@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {requireAdmin} from '@/lib/auth';import {prisma} from '@/lib/prisma';
+export async function POST(req:Request){if(!await requireAdmin())return new NextResponse('Forbidden',{status:403});const {id,name,url,active}=await req.json();if(!url)return NextResponse.json({error:'URL required'},{status:400});const row=id?await prisma.affiliateLink.update({where:{id},data:{name,url,active}}):await prisma.affiliateLink.create({data:{name:name||'Affiliate',url,active:active!==false}});return NextResponse.json(row)}

@@ -1,0 +1,2 @@
+import {NextResponse} from 'next/server';import {requireAdmin} from '@/lib/auth';import {prisma} from '@/lib/prisma';
+export async function POST(req:Request){if(!await requireAdmin())return new NextResponse('Forbidden',{status:403});const {key,value}=await req.json();if(!key||value===undefined)return NextResponse.json({error:'Invalid setting'},{status:400});await prisma.setting.upsert({where:{key},update:{value:String(value)},create:{key,value:String(value)}});return NextResponse.json({ok:true})}

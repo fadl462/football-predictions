@@ -1,0 +1,9 @@
+{
+  "name":"football-edge-predictions",
+  "version":"1.0.0",
+  "private":true,
+  "scripts":{"dev":"next dev","build":"prisma generate && next build","start":"next start","lint":"next lint","db:push":"prisma db push","db:seed":"tsx prisma/seed.ts"},
+  "dependencies":{"@prisma/client":"latest","bcryptjs":"latest","jose":"latest","lucide-react":"latest","next":"latest","react":"latest","react-dom":"latest","zod":"latest"},
+  "devDependencies":{"@types/node":"latest","@types/react":"latest","@types/react-dom":"latest","prisma":"latest","tsx":"latest","typescript":"latest"},
+  "engines":{"node":">=20.9"}
+}

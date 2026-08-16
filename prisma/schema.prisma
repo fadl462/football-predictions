@@ -1,0 +1,107 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" }
+
+enum UserRole { USER ADMIN }
+enum PredictionTier { FREE VIP }
+enum PredictionStatus { PENDING WON LOST VOID }
+enum SubscriptionStatus { ACTIVE NON_RENEWING EXPIRED CANCELLED }
+
+model User {
+  id           String @id @default(cuid())
+  email        String @unique
+  name         String?
+  passwordHash String
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  subscription Subscription?
+}
+
+model Subscription {
+  id                   String @id @default(cuid())
+  userId               String @unique
+  user                 User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planCode             String?
+  paystackCustomerCode String?
+  paystackSubscriptionCode String?
+  status               SubscriptionStatus @default(ACTIVE)
+  startsAt             DateTime @default(now())
+  endsAt               DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model League {
+  id        String @id @default(cuid())
+  externalId Int @unique
+  name      String
+  country   String?
+  logo      String?
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  fixtures  Fixture[]
+}
+
+model Fixture {
+  id            String @id @default(cuid())
+  externalId    Int @unique
+  leagueId      String
+  league        League @relation(fields: [leagueId], references: [id])
+  kickoff       DateTime
+  homeTeam      String
+  awayTeam      String
+  homeLogo      String?
+  awayLogo      String?
+  status        String @default("NS")
+  homeScore     Int?
+  awayScore     Int?
+  statsJson     Json?
+  rawJson       Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  predictions   Prediction[]
+  @@index([kickoff])
+}
+
+model Prediction {
+  id           String @id @default(cuid())
+  fixtureId    String
+  fixture      Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  tier         PredictionTier
+  market       String
+  selection    String
+  confidence   Int
+  status       PredictionStatus @default(PENDING)
+  resultNote   String?
+  publishedAt  DateTime @default(now())
+  settledAt    DateTime?
+  algorithmVersion String @default("v1")
+  manuallyOverridden Boolean @default(false)
+  createdAt    DateTime @default(now())
+  @@index([tier, publishedAt])
+  @@unique([fixtureId, tier])
+}
+
+model AffiliateLink {
+  id        String @id @default(cuid())
+  name      String
+  url       String
+  active    Boolean @default(true)
+  clicks    Int @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Setting {
+  key       String @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model ApiLog {
+  id        String @id @default(cuid())
+  operation String
+  success   Boolean
+  message   String?
+  createdAt DateTime @default(now())
+}

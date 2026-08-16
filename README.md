@@ -1,137 +1,44 @@
-# The Match Desk 🇩🇿
+# The Match Desk
 
-> **GitHub Preview:** the repository root includes a polished static `index.html` preview so GitHub Pages can display the actual product interface. The full Next.js application remains in `app/` and is intended for the later server deployment.
+World football intelligence, organized by competition importance.
 
+## Product hierarchy
 
-Europe-first football predictions platform with a featured Algeria market with automated fixtures, free predictions, VIP predictions, historical results, affiliate management and an admin control center.
+1. Top Leagues — Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Championship
+2. UEFA — Champions League, Europa League, Conference League
+3. Americas — Copa Libertadores, Brasileirão, Argentina Primera, Liga MX, MLS
+4. Asia & Middle East — Saudi Pro League, J1 League, K League 1, Qatar Stars League, AFC Champions League Elite
+5. Africa — CAF Champions League, CAF Confederation Cup, Egypt Premier League, Botola Pro, Algeria Ligue 1 and Ligue 2
 
-## What is already in the Git project
+The interface uses explicit country and region names instead of country-flag emojis so competitions remain immediately understandable on every device.
 
-- Next.js + TypeScript full-stack application
-- PostgreSQL + Prisma data model
-- API-Football / API-Sports integration
-- Europe-first competition prioritisation with Algeria as a featured market
-- Automated free and VIP prediction generation
-- Versioned prediction engine (`dz-v2`)
-- Automatic prediction settlement and history
-- User registration/login with signed sessions
-- VIP access control
-- Chargily Pay V2 payment integration for USD
-- Server-side webhook verification
-- Admin controls for settings, users/VIP, predictions, leagues and affiliates
-- Affiliate redirect/click tracking (`/go/<id>`)
-- Health endpoint (`/api/health`)
-- Vercel cron configuration
-- Optional GitHub Actions sync workflow
-- GitHub CI for typecheck + production build
-- Local PostgreSQL Docker setup
-- Demo mode for reviewing the UI before paid services are configured
+## GitHub Pages preview
 
-## Architecture
+The repository contains a static preview in `index.html` plus working static routes for Match Centre, match detail pages, Track Record, Pro, login, registration, admin, About, FAQ, Contact, Privacy, Terms, Safety and Updates. This allows the product experience to be reviewed on GitHub Pages without Vercel.
 
-**API-Football → PostgreSQL → Europe-first priority engine → Free/VIP publication → settlement → history**
+## Full application
 
-API credentials and payment secrets are used only on the server. They are never placed in `NEXT_PUBLIC_*` variables.
+The `app/` directory is the production Next.js application. It contains server-side authentication, PostgreSQL/Prisma data access, football API integration, prediction generation, result settlement, Chargily payment integration, admin controls and the protected sync endpoint.
 
-## Algeria defaults
+## Prediction engine
 
-- Country: Algeria (`DZ`)
-- Timezone: `Africa/Algiers`
-- Primary locale: `fr-DZ`
-- Prepared locales: `fr-DZ`, `ar-DZ`, `en`
-- Currency: USD
-- Priority: Ligue 1, Ligue 2, Coupe Nationale
-- Free picks/day: 3
-- VIP picks/day: 8
-- Free minimum confidence: 68%
-- VIP minimum confidence: 72%
-- VIP default price: 1,999 USD / 30 days
+The API is an input layer. The application applies its own versioned competition-priority and confidence rules so the ranking model can evolve independently.
 
-## Local development — no Vercel required
+## Local development
 
 1. Install Node.js 20+.
 2. Copy `.env.example` to `.env.local`.
-3. Start local PostgreSQL:
+3. Start PostgreSQL locally with `docker compose up -d postgres`.
+4. Set `DATABASE_URL`, `AUTH_SECRET`, `CRON_SECRET`, `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD` and provider credentials as needed.
+5. Keep `DEMO_MODE=true` while reviewing the UI.
+6. Run `npm install`, `npx prisma generate`, `npx prisma db push`, `npm run db:seed`, then `npm run dev`.
 
-```bash
-docker compose up -d postgres
-```
+No Vercel, paid cron or live payment account is required to review the Git-stage application.
 
-4. Set this local database URL in `.env.local`:
+## Currency
 
-```text
-DATABASE_URL="postgresql://dz_edge:dz_edge_local_password@localhost:5432/dz_football_edge?schema=public"
-```
+Public pricing is displayed in USD. Payment settlement remains configurable at the production adapter layer so the display currency is never confused with a provider's supported settlement currency.
 
-5. Set `AUTH_SECRET`, `CRON_SECRET` and `ADMIN_SEED_PASSWORD`.
-6. Leave `DEMO_MODE=true` while reviewing the interface, or add a real Football API key and database when testing the automated engine.
-7. Install and initialise:
+## Security
 
-```bash
-npm install
-npx prisma generate
-npx prisma db push
-npm run db:seed
-npm run dev
-```
-
-8. Open `http://localhost:3000`.
-
-The admin account uses the values from `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD`. The password is no longer hard-coded in the repository.
-
-## Automated sync
-
-`GET /api/cron/sync` requires:
-
-```text
-Authorization: Bearer <CRON_SECRET>
-```
-
-The sync process imports curated priority fixtures across Europe, UEFA, global competitions and Algeria, ranks leagues by priority, requests prediction inputs, publishes the configured free/VIP tiers, settles completed predictions, expires VIP subscriptions and records an operational log.
-
-## Health check
-
-`GET /api/health` returns non-secret configuration/connection status. It never returns API keys or payment secrets.
-
-## GitHub stage before paid deployment
-
-You can complete the entire code/configuration stage on GitHub before paying for Vercel or enabling any hosted cron service.
-
-The repository already contains:
-
-- `vercel.json` for future Vercel Cron activation
-- `.github/workflows/sync.yml` for an optional future GitHub Actions scheduler
-- `.github/workflows/ci.yml` for code/build verification
-- `docker-compose.yml` for local PostgreSQL
-- `.env.example` documenting all required deployment variables
-
-Do **not** upload `.env.local`, real API keys, payment secrets or production database credentials.
-
-## Production variables to add later
-
-- `DATABASE_URL`
-- `AUTH_SECRET`
-- `NEXT_PUBLIC_APP_URL`
-- `FOOTBALL_API_KEY`
-- `FOOTBALL_API_BASE_URL`
-- `CRON_SECRET`
-- `CHARGILY_SECRET_KEY`
-- `CHARGILY_API_BASE_URL`
-- `CHARGILY_PAYMENT_METHOD`
-- `VIP_PRICE_USD`
-- `ADMIN_SEED_EMAIL`
-- `ADMIN_SEED_PASSWORD`
-- `DEFAULT_AFFILIATE_URL` (optional)
-- `DEMO_MODE=false`
-
-## Important production note
-
-Predictions are informational and are not guarantees of outcomes. Betting/gambling availability, affiliate arrangements, advertising rules and applicable Algerian laws/regulations should be reviewed before launch.
-
-
-## Git-only completion
-
-The project can be reviewed locally without Vercel. See `GIT_STAGE_CHECKLIST.md` for the source-completion and verification status. Vercel, production PostgreSQL, live Chargily credentials and hosted cron are intentionally deferred until the Git version is fully approved.
-
-## Display currency
-The product UI and Pro pricing are displayed in **USD ($)**. The payment adapter is intentionally separate: when the production Algerian payment rail is activated, its supported settlement currency and amount are configured with `PAYMENT_CURRENCY` and `PAYMENT_AMOUNT`. This prevents the public USD price from being incorrectly sent to a provider that requires local settlement currency.
+Never commit `.env.local`, API keys, database passwords or payment secrets. Football and payment credentials are accessed only on the server in the production Next.js application.

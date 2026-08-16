@@ -1,16 +1,32 @@
-# GitHub visual preview
+# GitHub Pages Preview
 
-The root `index.html` is a polished static product preview designed for GitHub Pages.
-It demonstrates the user-facing experience with demo data:
+The static GitHub preview is intentionally complete enough to review the product before paid deployment.
 
-- Algeria-first homepage
-- Free predictions
-- VIP paywall
-- Match fixtures
-- Prediction history
-- Automated workflow explanation
-- Login/payment interaction previews
+## Routes included
 
-The real full-stack application is the Next.js app in `app/`, with PostgreSQL, Prisma, authentication, API-Football, Chargily and cron endpoints. Those server-side capabilities require a server runtime such as Vercel and are intentionally not executed by GitHub Pages.
+- `/` — World football desk
+- `/matches/` — World Match Centre
+- `/matches/arsenal-man-city/` — Match intelligence example
+- `/matches/real-atletico/` — Match intelligence example
+- `/matches/psg-bayern/` — Match intelligence example
+- `/matches/inter-napoli/` — Match intelligence example
+- `/matches/mc-alger-crb/` — Algeria match example
+- `/history/` — Public track record
+- `/pricing/` — Pro pricing in USD
+- `/vip/` — Pro experience
+- `/login/` — Login preview
+- `/register/` — Registration preview
+- `/admin/` — Control Room preview
+- `/about/`, `/faq/`, `/contact/`, `/updates/`, `/privacy/`, `/terms/`, `/safety/`
 
-If GitHub Pages is enabled for the repository root, it will serve `index.html` rather than the README.
+The preview uses demo data and browser navigation only. Server-side accounts, database queries, football API synchronization, payments and automated settlement are provided by the Next.js application under `app/` and activate after server deployment.
+
+## Navigation principle
+
+The main navigation does not use Algeria as a top-level global category. The primary menu is:
+
+**Top Leagues → UEFA → Americas → Asia & Middle East → Africa → Matches → Track Record**
+
+Algeria is discoverable under the Africa menu and has dedicated competition coverage.
+
+Country flags are deliberately not used as navigation labels. Country and region names are written explicitly.

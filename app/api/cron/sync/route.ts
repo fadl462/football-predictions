@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getFixtures, getFixture } from '@/lib/football';
-import { generatePredictionCandidate, settlePrediction, algorithmRules } from '@/lib/predictions';
+import { generatePredictionCandidate, settlePrediction, algorithmRules, priorityForLeague } from '@/lib/predictions';
 
 export const dynamic='force-dynamic';
 const todayInAlgeria = () => new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Algiers',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());

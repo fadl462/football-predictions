@@ -14,35 +14,21 @@ export type Candidate = {
   priority: number;
 };
 
-const priorityForLeague = (league: string, country = '') => {
+export const priorityForLeague = (league: string, country = '') => {
   const normalized = `${league} ${country}`.toLowerCase();
-  if (normalized.includes('champions league')) return 140;
-  if (normalized.includes('premier league')) return 135;
-  if (normalized.includes('la liga')) return 134;
-  if (normalized.includes('serie a')) return 133;
-  if (normalized.includes('bundesliga')) return 132;
-  if (normalized.includes('ligue 1') && !normalized.includes('algeria')) return 131;
-  if (normalized.includes('europa league')) return 129;
-  if (normalized.includes('conference league')) return 128;
-  if (normalized.includes('eredivisie')) return 124;
-  if (normalized.includes('primeira liga')) return 123;
-  if (normalized.includes('championship')) return 118;
-  if (normalized.includes('2. bundesliga') || normalized.includes('2 bundesliga')) return 106;
-  if (normalized.includes('ligue 2') && !normalized.includes('algeria')) return 105;
-  if (normalized.includes('scottish premiership')) return 104;
-  if (normalized.includes('super lig')) return 103;
-  if (normalized.includes('jupiler')) return 102;
-  if (normalized.includes('copa libertadores')) return 98;
-  if (normalized.includes('brasileirao') || normalized.includes('brasileirão')) return 97;
-  if (normalized.includes('liga mx')) return 95;
-  if (normalized.includes('mls')) return 94;
-  if (normalized.includes('saudi pro league')) return 93;
-  if (normalized.includes('j1 league')) return 92;
-  if (normalized.includes('caf')) return 88;
   if (normalized.includes('algeria') && normalized.includes('ligue 1')) return 84;
   if (normalized.includes('algeria') && normalized.includes('ligue 2')) return 82;
-  if (normalized.includes('coupe nationale') || normalized.includes("coupe d'algerie") || normalized.includes("coupe d'algérie")) return 80;
-  return 50;
+  const rules: Array<[string, number]> = [
+    ['champions league', 140], ['premier league', 135], ['la liga', 134], ['serie a', 133], ['bundesliga', 132],
+    ['ligue 1', 131], ['europa league', 129], ['conference league', 128], ['eredivisie', 124], ['primeira liga', 123],
+    ['championship', 118], ['2. bundesliga', 106], ['ligue 2', 105], ['scottish premiership', 104], ['super lig', 103],
+    ['jupiler', 102], ['copa libertadores', 98], ['brasileirao', 97], ['brasileirão', 97], ['argentina primera', 96],
+    ['liga mx', 95], ['mls', 94], ['saudi pro league', 93], ['j1 league', 92], ['k league 1', 91],
+    ['qatar stars league', 90], ['afc champions league elite', 89], ['caf champions league', 88], ['caf confederation', 87],
+    ['egypt premier league', 86], ['botola pro', 85], ['algeria', 84],
+  ];
+  const found = rules.find(([name]) => normalized.includes(name));
+  return found?.[1] ?? 50;
 };
 
 function scoreCandidate(raw: any) {
@@ -111,7 +97,7 @@ export function settlePrediction(selection: string, home: number | null, away: n
 
 export const algorithmRules = {
   version: 'dz-v2',
-  description: 'Europe-first global football ranking, followed by strong global competitions and a featured Algeria market.',
+  description: 'Global competition board: top leagues first, then UEFA, Americas, Asia and Africa, with Algeria covered inside Africa.',
   freeMinimumConfidence: siteConfig.minConfidenceDefault,
   vipMinimumConfidence: siteConfig.vipMinConfidenceDefault,
 };

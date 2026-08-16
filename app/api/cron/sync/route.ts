@@ -18,8 +18,8 @@ export async function GET(req:Request){
    for(const f of data.response||[]){
     if(f.league.country!=='Algeria') continue;
     const priority = f.league.name.includes('Ligue 1')?100:f.league.name.includes('Ligue 2')?95:f.league.name.includes('Coupe')?90:60;
-    const league=await prisma.league.upsert({where:{externalId:f.league.id},update:{name:f.league.name,country:f.league.country,logo:f.league.logo,priority},create:{externalId:f.league.id,name:f.league.name,country:f.league.country,logo:f.league.logo,priority}});
-    await prisma.fixture.upsert({where:{externalId:f.fixture.id},update:{leagueId:league.id,kickoff:new Date(f.fixture.date),homeTeam:f.teams.home.name,awayTeam:f.teams.away.name,homeLogo:f.teams.home.logo,awayLogo:f.teams.away.logo,status:f.fixture.status.short,homeScore:f.goals.home,awayScore:f.goals.away,rawJson:f},create:{externalId:f.fixture.id,leagueId:league.id,kickoff:new Date(f.fixture.date),homeTeam:f.teams.home.name,awayTeam:f.teams.away.name,homeLogo:f.teams.home.logo,awayLogo:f.teams.away.logo,status:f.fixture.status.short,homeScore:f.goals.home,awayScore:f.goals.away,rawJson:f}});
+    const league=await prisma.league.upsert({where:{externalId:f.league.id},update:{name:f.league.name,country:f.league.country,logo:f.league.logo,sport:'FOOTBALL',priority},create:{externalId:f.league.id,name:f.league.name,country:f.league.country,logo:f.league.logo,sport:'FOOTBALL',priority}});
+    await prisma.fixture.upsert({where:{externalId:f.fixture.id},update:{leagueId:league.id,kickoff:new Date(f.fixture.date),homeTeam:f.teams.home.name,awayTeam:f.teams.away.name,homeLogo:f.teams.home.logo,awayLogo:f.teams.away.logo,sport:'FOOTBALL',status:f.fixture.status.short,homeScore:f.goals.home,awayScore:f.goals.away,rawJson:f},create:{externalId:f.fixture.id,leagueId:league.id,kickoff:new Date(f.fixture.date),homeTeam:f.teams.home.name,awayTeam:f.teams.away.name,homeLogo:f.teams.home.logo,awayLogo:f.teams.away.logo,sport:'FOOTBALL',status:f.fixture.status.short,homeScore:f.goals.home,awayScore:f.goals.away,rawJson:f}});
     imported++;
    }
   }

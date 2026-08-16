@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dz-football-edge-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: dz_football_edge
+      POSTGRES_USER: dz_edge
+      POSTGRES_PASSWORD: dz_edge_local_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - dz_edge_postgres:/var/lib/postgresql/data
+
+volumes:
+  dz_edge_postgres:

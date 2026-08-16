@@ -6,3 +6,14 @@
 
 /* Algeria localization */
 [dir="rtl"] body{text-align:right}[dir="rtl"] .navlinks,[dir="rtl"] .actions{flex-direction:row-reverse}[dir="rtl"] .fixture{direction:rtl}.dzFlag{display:inline-flex;gap:5px;align-items:center}
+
+.adminFormGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.adminFormGrid form{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.adminFormGrid label{display:grid;gap:6px;font-size:.88rem;color:var(--muted)}
+.adminFormGrid input,.adminFormRow input,.adminControls .fixture input,.adminControls .fixture select{min-width:0;width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface);color:var(--text)}
+.adminFormRow{display:flex;gap:10px;margin-top:12px}
+.adminFormRow input{flex:1}
+.adminControls .fixture{display:grid;grid-template-columns:minmax(180px,1.5fr) repeat(4,minmax(80px,1fr)) auto;gap:8px;align-items:center}
+@media (max-width:800px){.adminFormGrid{grid-template-columns:1fr}.adminControls .fixture{grid-template-columns:1fr 1fr}.adminControls .fixture>div{grid-column:1/-1}.adminFormRow{flex-direction:column}}
+.affiliateBanner{display:flex;justify-content:space-between;align-items:center;gap:24px}
+@media (max-width:700px){.affiliateBanner{flex-direction:column;align-items:flex-start}}

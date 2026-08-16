@@ -1,42 +1,68 @@
 # DZ Football Edge 🇩🇿
 
-Algeria-first football predictions platform with automated fixtures, free predictions, VIP predictions, historical results, affiliate management and an admin dashboard.
+Algeria-first football predictions platform with automated fixtures, free predictions, VIP predictions, historical results, affiliate management and an admin control center.
 
-## Core architecture
+## What is already in the Git project
 
-**API-Football / API-Sports → PostgreSQL → Algeria-first prediction engine → Free/VIP publication → automatic settlement → history**
+- Next.js + TypeScript full-stack application
+- PostgreSQL + Prisma data model
+- API-Football / API-Sports integration
+- Algeria-first league prioritisation
+- Automated free and VIP prediction generation
+- Versioned prediction engine (`dz-v2`)
+- Automatic prediction settlement and history
+- User registration/login with signed sessions
+- VIP access control
+- Chargily Pay V2 payment integration for DZD
+- Server-side webhook verification
+- Admin controls for settings, users/VIP, predictions, leagues and affiliates
+- Affiliate redirect/click tracking (`/go/<id>`)
+- Health endpoint (`/api/health`)
+- Vercel cron configuration
+- Optional GitHub Actions sync workflow
+- GitHub CI for typecheck + production build
+- Local PostgreSQL Docker setup
+- Demo mode for reviewing the UI before paid services are configured
 
-API-Football currently lists Algeria coverage including Ligue 1, Ligue 2 and Coupe Nationale, with fixtures, standings and other football data available according to competition/season coverage. The prediction engine treats the API as an input layer and applies its own rules so the algorithm can evolve independently.
+## Architecture
 
-## Algeria localization
+**API-Football → PostgreSQL → Algeria-first prediction engine → Free/VIP publication → settlement → history**
+
+API credentials and payment secrets are used only on the server. They are never placed in `NEXT_PUBLIC_*` variables.
+
+## Algeria defaults
 
 - Country: Algeria (`DZ`)
 - Timezone: `Africa/Algiers`
-- Locale: French Algeria (`fr-DZ`), with the UI structured to add Arabic later
+- Primary locale: `fr-DZ`
+- Prepared locales: `fr-DZ`, `ar-DZ`, `en`
 - Currency: DZD
-- Priority competitions: Ligue 1, Ligue 2, Coupe Nationale
-- CAF competitions can be prioritized when relevant
-- Free default: 3 picks/day
-- VIP default: up to 8 picks/day
-- Free confidence threshold: 68%
-- VIP confidence threshold: 72%
+- Priority: Ligue 1, Ligue 2, Coupe Nationale
+- Free picks/day: 3
+- VIP picks/day: 8
+- Free minimum confidence: 68%
+- VIP minimum confidence: 72%
+- VIP default price: 1,999 DZD / 30 days
 
-## VIP payments
+## Local development — no Vercel required
 
-The Algeria build uses **Chargily Pay V2** instead of the Ghana-focused Paystack integration. Chargily Pay documents checkout creation in DZD and supports EDAHABIA and CIB payment methods. The integration keeps the secret key server-side and verifies webhook signatures before activating 30-day VIP access.
-
-For live payments, complete Chargily account/application verification and use the live API base URL. Test mode is available during development.
-
-## Local setup
-
-1. Install Node.js 20.9+.
+1. Install Node.js 20+.
 2. Copy `.env.example` to `.env.local`.
-3. Set `DATABASE_URL`.
-4. Set `AUTH_SECRET` and `CRON_SECRET`.
-5. Add `FOOTBALL_API_KEY`.
-6. Add `CHARGILY_SECRET_KEY` and set `VIP_PRICE_DZD`.
-7. Set `DEMO_MODE=false` when real credentials are ready.
-8. Run:
+3. Start local PostgreSQL:
+
+```bash
+docker compose up -d postgres
+```
+
+4. Set this local database URL in `.env.local`:
+
+```text
+DATABASE_URL="postgresql://dz_edge:dz_edge_local_password@localhost:5432/dz_football_edge?schema=public"
+```
+
+5. Set `AUTH_SECRET`, `CRON_SECRET` and `ADMIN_SEED_PASSWORD`.
+6. Leave `DEMO_MODE=true` while reviewing the interface, or add a real Football API key and database when testing the automated engine.
+7. Install and initialise:
 
 ```bash
 npm install
@@ -46,33 +72,55 @@ npm run db:seed
 npm run dev
 ```
 
-Seed admin:
+8. Open `http://localhost:3000`.
 
-- Email: `admin@dzfootball-edge.local`
-- Password: `Admin@12345`
+The admin account uses the values from `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWORD`. The password is no longer hard-coded in the repository.
 
-Change the password immediately in production.
+## Automated sync
 
-## Automation
+`GET /api/cron/sync` requires:
 
-`GET /api/cron/sync` is protected by `Authorization: Bearer <CRON_SECRET>`.
+```text
+Authorization: Bearer <CRON_SECRET>
+```
 
-The sync process:
+The sync process imports Algeria fixtures, prioritises leagues, requests prediction inputs, publishes the configured free/VIP tiers, settles completed predictions, expires VIP subscriptions and records an operational log.
 
-1. Retrieves Algeria fixtures for today and tomorrow.
-2. Stores/updates leagues and fixtures.
-3. Prioritizes Ligue 1, Ligue 2 and Coupe Nationale.
-4. Requests prediction inputs from API-Football.
-5. Applies the versioned DZ prediction rules.
-6. Publishes the configured free and VIP cards.
-7. Settles completed predictions from final scores.
-8. Expires VIP subscriptions after their end date.
-9. Records an API log for operational visibility.
+## Health check
 
-## GitHub / Vercel
+`GET /api/health` returns non-secret configuration/connection status. It never returns API keys or payment secrets.
 
-Upload the project root contents to GitHub. Do not upload `.env.local` or any secret keys. Configure all secrets as Vercel environment variables.
+## GitHub stage before paid deployment
+
+You can complete the entire code/configuration stage on GitHub before paying for Vercel or enabling any hosted cron service.
+
+The repository already contains:
+
+- `vercel.json` for future Vercel Cron activation
+- `.github/workflows/sync.yml` for an optional future GitHub Actions scheduler
+- `.github/workflows/ci.yml` for code/build verification
+- `docker-compose.yml` for local PostgreSQL
+- `.env.example` documenting all required deployment variables
+
+Do **not** upload `.env.local`, real API keys, payment secrets or production database credentials.
+
+## Production variables to add later
+
+- `DATABASE_URL`
+- `AUTH_SECRET`
+- `NEXT_PUBLIC_APP_URL`
+- `FOOTBALL_API_KEY`
+- `FOOTBALL_API_BASE_URL`
+- `CRON_SECRET`
+- `CHARGILY_SECRET_KEY`
+- `CHARGILY_API_BASE_URL`
+- `CHARGILY_PAYMENT_METHOD`
+- `VIP_PRICE_DZD`
+- `ADMIN_SEED_EMAIL`
+- `ADMIN_SEED_PASSWORD`
+- `DEFAULT_AFFILIATE_URL` (optional)
+- `DEMO_MODE=false`
 
 ## Important production note
 
-Predictions are informational and are not guarantees of outcomes. Betting and gambling availability, affiliate arrangements, advertising rules and applicable Algerian laws/regulations must be reviewed before launch.
+Predictions are informational and are not guarantees of outcomes. Betting/gambling availability, affiliate arrangements, advertising rules and applicable Algerian laws/regulations should be reviewed before launch.

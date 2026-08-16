@@ -4,7 +4,7 @@ import { homeData } from '@/lib/data';
 import { siteConfig } from '@/lib/config';
 
 export default async function Home() {
-  const { matches, predictions } = await homeData();
+  const { matches, predictions, affiliate } = await homeData();
   return <main>
     <section className="hero"><div className="container">
       <span className="eyebrow">● Algeria-first football intelligence</span>
@@ -15,6 +15,7 @@ export default async function Home() {
     </div></section>
     <section id="today" className="section"><div className="container"><div className="sectionHead"><div><h2>Pronostics gratuits du jour</h2><p>Sélectionnés automatiquement à partir des matchs disponibles en Algérie.</p></div><Link href="/history" className="btn">Voir l’historique</Link></div><div className="cards">{predictions.map((p:any)=><PredictionCard key={p.id} p={p}/>)}</div></div></section>
     <section className="section"><div className="container"><div className="sectionHead"><div><h2>VIP — la sélection premium</h2><p>Plus de matchs, filtres plus stricts et couverture renforcée.</p></div><Link href="/pricing" className="btn gold">Découvrir le VIP</Link></div><div className="card"><div className="lock"><div><b>🔒 Pronostics VIP réservés aux abonnés</b><span className="muted">Créez un compte et activez votre accès VIP pour voir la sélection complète.</span></div></div></div></div></section>
+    {affiliate && <section className="section"><div className="container"><div className="card affiliateBanner"><div><span className="eyebrow">PARTENAIRE</span><h2>Consultez les offres de notre partenaire</h2><p className="muted">Lien géré depuis l’administration — aucune modification du code n’est nécessaire.</p></div><Link href={`/go/${affiliate.id}`} className="btn gold">Voir le partenaire</Link></div></div></section>}
     <section className="section"><div className="container"><div className="sectionHead"><div><h2>Matchs en Algérie</h2><p>Les données sont synchronisées automatiquement depuis le fournisseur football.</p></div><Link href="/matches" className="btn">Tous les matchs</Link></div><div className="fixtureList">{matches.slice(0,6).map((m:any)=><div className="fixture" key={m.id}><div className="league">{m.league}<br/><span>{m.country}</span></div><div className="teamsLine">{m.home} <span className="muted">vs</span> {m.away}</div><div><div className="kick">{new Date(m.kickoff).toLocaleTimeString('fr-DZ',{hour:'2-digit',minute:'2-digit',timeZone:siteConfig.timezone})}</div><span className="status">{m.status==='NS'?'À VENIR':m.status}</span></div></div>)}</div></div></section>
   </main>;
 }

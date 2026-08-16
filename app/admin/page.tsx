@@ -1,2 +1,70 @@
-import Link from 'next/link';import {requireAdmin} from '@/lib/auth';import {prisma} from '@/lib/prisma';import {redirect} from 'next/navigation';
-export default async function Admin(){const admin=await requireAdmin();if(!admin)redirect('/login');const [users,preds,subs,links,settings]=await Promise.all([prisma.user.count(),prisma.prediction.count(),prisma.subscription.count({where:{status:'ACTIVE'}}),prisma.affiliateLink.findMany({orderBy:{createdAt:'desc'}}),prisma.setting.findMany()]);const win=await prisma.prediction.count({where:{status:'WON'}}),loss=await prisma.prediction.count({where:{status:'LOST'}});return <main className="page"><div className="container"><div className="sectionHead"><div><span className="eyebrow">Control center</span><h1>Admin dashboard</h1><p className="muted">Gérez le moteur de pronostics, les abonnés VIP, l’historique, les ligues algériennes et la monétisation.</p></div><form action="/api/auth/logout" method="post"><button className="btn">Sign out</button></form></div><div className="dashCards"><div className="dashCard"><span className="muted">Users</span><br/><b>{users}</b></div><div className="dashCard"><span className="muted">VIP active</span><br/><b>{subs}</b></div><div className="dashCard"><span className="muted">Predictions</span><br/><b>{preds}</b></div><div className="dashCard"><span className="muted">Record</span><br/><b>{win}–{loss}</b></div></div><div className="adminGrid" style={{marginTop:18}}><aside className="side"><Link href="#settings">Settings</Link><Link href="#predictions">Predictions</Link><Link href="#affiliates">Affiliate</Link><Link href="/history">History</Link></aside><div><section id="settings" className="card"><h2>Automation settings</h2><p className="muted">These values control how the daily engine publishes picks.</p><div className="fixtureList"><div className="fixture"><div><b>Free predictions per day</b><br/><span className="muted">Actuel : {settings.find(s=>s.key==='free_prediction_count')?.value||3}</span></div><span className="tag">Editable via API</span></div><div className="fixture"><div><b>Minimum confidence</b><br/><span className="muted">Actuel : {settings.find(s=>s.key==='min_confidence')?.value||68}%</span></div><span className="tag">Editable via API</span></div><div className="notice">Les clés API ne sont jamais affichées ici. Gardez FOOTBALL_API_KEY et CHARGILY_SECRET_KEY uniquement côté serveur.</div></div></section><section id="predictions" className="card" style={{marginTop:14}}><h2>Prediction operations</h2><p className="muted">Use the daily sync endpoint to import fixtures, publish candidates and settle results. Manual overrides are supported through the admin API.</p><div className="notice">Endpoint automatique : <code>/api/cron/sync</code> — protégez-le avec <code>CRON_SECRET</code>.</div></section><section id="affiliates" className="card" style={{marginTop:14}}><h2>Affiliate links</h2><p className="muted">Change destinations without editing frontend code.</p>{links.map(l=><div className="fixture" key={l.id}><div><b>{l.name}</b><br/><span className="muted">{l.url}</span></div><span className={l.active?'win':'void'}>{l.active?'ACTIVE':'OFF'}</span></div>)}</section></div></div></div></main>}
+import Link from 'next/link';
+import { requireAdmin } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { redirect } from 'next/navigation';
+import AdminControls from '@/components/AdminControls';
+
+export default async function Admin() {
+  const admin = await requireAdmin();
+  if (!admin) redirect('/login');
+
+  const [userCount, users, predictions, activeVip, affiliates, settings, leagues, win, loss] = await Promise.all([
+    prisma.user.count(),
+    prisma.user.findMany({ select: { id: true, email: true, role: true, subscription: { select: { status: true } } }, orderBy: { createdAt: 'desc' }, take: 50 }),
+    prisma.prediction.findMany({ include: { fixture: true }, orderBy: { publishedAt: 'desc' }, take: 20 }),
+    prisma.subscription.count({ where: { status: 'ACTIVE' } }),
+    prisma.affiliateLink.findMany({ orderBy: { createdAt: 'desc' } }),
+    prisma.setting.findMany(),
+    prisma.league.findMany({ where: { country: 'Algeria' }, orderBy: [{ priority: 'desc' }, { name: 'asc' }] }),
+    prisma.prediction.count({ where: { status: 'WON' } }),
+    prisma.prediction.count({ where: { status: 'LOST' } }),
+  ]);
+
+  return <main className="page">
+    <div className="container">
+      <div className="sectionHead">
+        <div><span className="eyebrow">Control center</span><h1>Admin dashboard</h1><p className="muted">Gérez les utilisateurs, le moteur automatisé, les prédictions, les ligues, les abonnements VIP et les affiliés.</p></div>
+        <form action="/api/auth/logout" method="post"><button className="btn">Sign out</button></form>
+      </div>
+
+      <div className="dashCards">
+        <div className="dashCard"><span className="muted">Users</span><br/><b>{userCount}</b></div>
+        <div className="dashCard"><span className="muted">VIP active</span><br/><b>{activeVip}</b></div>
+        <div className="dashCard"><span className="muted">Predictions</span><br/><b>{predictions.length}</b></div>
+        <div className="dashCard"><span className="muted">Record</span><br/><b>{win}–{loss}</b></div>
+      </div>
+
+      <div className="adminGrid" style={{ marginTop: 18 }}>
+        <aside className="side">
+          <Link href="#settings">Settings</Link>
+          <Link href="#predictions">Predictions</Link>
+          <Link href="#users">Users & VIP</Link>
+          <Link href="#leagues">Leagues</Link>
+          <Link href="#affiliates">Affiliate</Link>
+          <Link href="/history">History</Link>
+          <Link href="/matches">Matches</Link>
+        </aside>
+        <div>
+          <section id="settings" className="card">
+            <h2>Automation settings</h2>
+            <p className="muted">Free/VIP volume and confidence thresholds are stored in PostgreSQL and can be changed without redeploying.</p>
+            <div className="fixtureList">
+              <div className="fixture"><div><b>Free picks/day</b><br/><span className="muted">{settings.find(s => s.key === 'free_prediction_count')?.value || 3}</span></div><span className="tag">Editable</span></div>
+              <div className="fixture"><div><b>VIP picks/day</b><br/><span className="muted">{settings.find(s => s.key === 'vip_prediction_count')?.value || 8}</span></div><span className="tag">Editable</span></div>
+              <div className="fixture"><div><b>Free confidence</b><br/><span className="muted">{settings.find(s => s.key === 'min_confidence')?.value || 68}%</span></div><span className="tag">Editable</span></div>
+              <div className="fixture"><div><b>VIP confidence</b><br/><span className="muted">{settings.find(s => s.key === 'vip_min_confidence')?.value || 72}%</span></div><span className="tag">Editable</span></div>
+            </div>
+          </section>
+
+          <section id="predictions" className="card" style={{ marginTop: 14 }}>
+            <h2>Prediction operations</h2>
+            <p className="muted">Automatic sync imports Algerian fixtures, requests prediction inputs, publishes the daily tiers and settles completed results. Manual overrides are available below.</p>
+            <div className="notice">Endpoint: <code>/api/cron/sync</code> · Health: <code>/api/health</code> · Algorithm: <code>dz-v2</code></div>
+          </section>
+
+          <div id="users"><AdminControls predictions={predictions} users={users} leagues={leagues} affiliates={affiliates} settings={settings} /></div>
+        </div>
+      </div>
+    </div>
+  </main>;
+}

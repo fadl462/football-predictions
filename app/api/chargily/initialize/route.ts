@@ -16,7 +16,7 @@ export async function POST() {
     body: JSON.stringify({
       amount,
       currency: 'dzd',
-      payment_method: 'edahabia',
+      payment_method: process.env.CHARGILY_PAYMENT_METHOD || 'edahabia',
       success_url: `${app}/vip?payment=success`,
       failure_url: `${app}/pricing?payment=failed`,
       webhook_endpoint: `${app}/api/chargily/webhook`,

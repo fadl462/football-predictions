@@ -6,27 +6,28 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "latest",
-    "bcryptjs": "latest",
-    "jose": "latest",
-    "lucide-react": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
-    "zod": "latest"
+    "@prisma/client": "6.15.0",
+    "bcryptjs": "3.0.2",
+    "jose": "6.0.11",
+    "lucide-react": "0.468.0",
+    "next": "15.5.2",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "zod": "4.1.5"
   },
   "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "prisma": "latest",
-    "tsx": "latest",
-    "typescript": "latest"
+    "@types/node": "24.3.0",
+    "@types/react": "19.1.10",
+    "@types/react-dom": "19.1.7",
+    "prisma": "6.15.0",
+    "tsx": "4.20.5",
+    "typescript": "5.9.2"
   },
   "engines": {
     "node": ">=20.9"

@@ -1,45 +1,39 @@
-# DZ Football Edge — Deployment
+# DZ Football Edge — deployment checklist
 
-## 1. Database
-Use a managed PostgreSQL provider such as Neon, Supabase, Railway or another production PostgreSQL service.
+This file deliberately separates the **Git/code stage** from the **paid hosting stage**. You can finish and test the application locally before connecting Vercel, a hosted database or a live scheduler.
 
-Set `DATABASE_URL` in Vercel.
+## A. Complete on GitHub first
 
-## 2. Football API
-Create an API-Football/API-Sports account and add `FOOTBALL_API_KEY` as a Vercel server environment variable. Never expose it through `NEXT_PUBLIC_*` variables.
+- [ ] Repository contains the full project root.
+- [ ] `.env.example` is present.
+- [ ] `.env.local` and secrets are not committed.
+- [ ] GitHub CI passes typecheck/build.
+- [ ] Local PostgreSQL works with `docker compose up -d postgres`.
+- [ ] Prisma schema initializes with `npx prisma db push`.
+- [ ] Seed runs with `npm run db:seed`.
+- [ ] Demo UI works with `DEMO_MODE=true`.
+- [ ] Admin login works.
+- [ ] Prediction override controls work.
+- [ ] Affiliate management works.
+- [ ] `/api/health` responds.
+- [ ] Real API-Football credentials have been tested before production.
+- [ ] Chargily test credentials have been tested before production.
 
-## 3. Chargily Pay
-Create a Chargily Pay application, complete the required verification for live mode, and set:
+## B. Paid hosting stage — do later
 
-- `CHARGILY_SECRET_KEY`
-- `CHARGILY_API_BASE_URL=https://pay.chargily.net/api/v2`
-- `VIP_PRICE_DZD=1999`
+### Vercel
 
-The webhook endpoint is:
+Import the GitHub repository into Vercel and add the production environment variables listed in `README.md`.
 
-`https://YOUR-DOMAIN/api/chargily/webhook`
-
-Register it in Chargily or allow the checkout creation request to provide it. Webhook signatures are verified server-side.
-
-## 4. Vercel
 Set:
 
-- `DATABASE_URL`
-- `AUTH_SECRET`
-- `NEXT_PUBLIC_APP_URL`
-- `FOOTBALL_API_KEY`
-- `FOOTBALL_API_BASE_URL`
-- `CRON_SECRET`
-- `CHARGILY_SECRET_KEY`
-- `CHARGILY_API_BASE_URL`
-- `VIP_PRICE_DZD`
-- `DEFAULT_AFFILIATE_URL`
-- `DEMO_MODE=false`
+```text
+DEMO_MODE=false
+```
 
-Then deploy.
+### PostgreSQL
 
-## 5. Database initialization
-After the first deployment, run the Prisma commands from a trusted development environment against the production database:
+Use a production PostgreSQL provider. Run:
 
 ```bash
 npx prisma generate
@@ -47,5 +41,20 @@ npx prisma db push
 npm run db:seed
 ```
 
-## 6. Cron
-`vercel.json` schedules the sync twice daily. For high-volume fixtures, move to an external scheduler that can call `/api/cron/sync` every 1–3 hours with the `Authorization: Bearer <CRON_SECRET>` header.
+against the production database from a trusted environment.
+
+### Chargily
+
+Configure the production Chargily application and webhook endpoint:
+
+```text
+https://YOUR-DOMAIN/api/chargily/webhook
+```
+
+Keep `CHARGILY_SECRET_KEY` server-side.
+
+### Cron
+
+`vercel.json` already contains the scheduled sync configuration. It does not need to be edited when you later enable Vercel hosting.
+
+The alternative GitHub Actions workflow is `.github/workflows/sync.yml`; it requires `SITE_URL` and `CRON_SECRET` repository secrets and should only be enabled after the production URL exists.

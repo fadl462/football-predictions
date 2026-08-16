@@ -8,16 +8,18 @@ const startOfAlgeriaDay = () => {
 };
 
 export async function homeData() {
-  if (process.env.DEMO_MODE === 'true' || !process.env.DATABASE_URL) return { matches: demoMatches, predictions: demoFree };
+  if (process.env.DEMO_MODE === 'true' || !process.env.DATABASE_URL) return { matches: demoMatches, predictions: demoFree, affiliate: null };
   const start = startOfAlgeriaDay();
   const end = new Date(start); end.setDate(end.getDate() + 1); end.setMilliseconds(-1);
-  const [fixtures, predictions] = await Promise.all([
+  const [fixtures, predictions, affiliate] = await Promise.all([
     prisma.fixture.findMany({ where: { kickoff: { gte: start, lte: end } }, include: { league: true }, orderBy: { kickoff: 'asc' }, take: 16 }),
     prisma.prediction.findMany({ where: { tier: 'FREE', publishedAt: { gte: start, lte: end } }, include: { fixture: { include: { league: true } } }, orderBy: { confidence: 'desc' }, take: 3 }),
+    prisma.affiliateLink.findFirst({ where: { active: true }, orderBy: { createdAt: 'asc' }, select: { id: true, name: true } }),
   ]);
   return {
     matches: fixtures.map(f => ({ ...f, league: f.league.name, country: f.league.country })),
     predictions: predictions.map(p => ({ ...p, home: p.fixture.homeTeam, away: p.fixture.awayTeam, kickoff: p.fixture.kickoff.toISOString(), league: p.fixture.league.name })),
+    affiliate,
   };
 }
 

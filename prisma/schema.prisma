@@ -25,7 +25,7 @@ model Subscription {
   provider             String?
   providerReference    String?
   amount               Int?
-  currency             String @default("DZD")
+  currency             String @default("USD")
   status               SubscriptionStatus @default(ACTIVE)
   startsAt             DateTime @default(now())
   endsAt               DateTime?

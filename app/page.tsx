@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import PredictionCard from '@/components/PredictionCard';
 import { homeData } from '@/lib/data';
+import { formatUSD } from '@/lib/config';
 
 const priorityBoards = [
   ['01', 'Europe Elite', 'Premier League · La Liga · Serie A · Bundesliga · Ligue 1'],
@@ -16,7 +17,7 @@ export default async function Home() {
       <span className="eyebrow">● GLOBAL FOOTBALL INTELLIGENCE · EUROPE FIRST</span>
       <h1>Le football<br/><span>dans le bon ordre.</span></h1>
       <p>Un centre de pronostics structuré par niveau : grandes ligues européennes, compétitions UEFA, football mondial avancé, puis notre couverture algérienne dédiée.</p>
-      <div className="heroActions"><Link href="#today" className="btn primary">Voir les picks du jour</Link><Link href="/matches" className="btn">Explorer les matchs</Link><Link href="/pricing" className="btn gold">VIP · {vipPrice.toLocaleString('fr-DZ')} DZD</Link></div>
+      <div className="heroActions"><Link href="#today" className="btn primary">Voir les picks du jour</Link><Link href="/matches" className="btn">Explorer les matchs</Link><Link href="/pricing" className="btn gold">VIP · {formatUSD(vipPrice)}</Link></div>
       <div className="stats"><div className="stat"><strong>{freeCount}</strong><span>Picks gratuits / jour</span></div><div className="stat"><strong>72%+</strong><span>Seuil VIP</span></div><div className="stat"><strong>UEFA</strong><span>Couverture continentale</span></div><div className="stat"><strong>24/7</strong><span>Synchronisation automatique</span></div></div>
     </div></section>
     <section className="section"><div className="container"><div className="sectionHead"><div><span className="eyebrow">FOOTBALL PRIORITY BOARD</span><h2>Les compétitions <span>dans l’ordre.</span></h2><p>Le moteur donne d’abord du poids aux compétitions à forte profondeur statistique, puis descend progressivement vers les marchés secondaires.</p></div></div><div className="cards">{priorityBoards.map(([n,title,desc])=><div className="card" key={n}><span className="eyebrow">{n}</span><h3>{title}</h3><p className="muted">{desc}</p></div>)}</div></div></section>

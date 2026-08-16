@@ -1,4 +1,4 @@
-# DZ Football Edge — Git Stage Checklist
+# The Match Desk — Git Stage Checklist
 
 This repository is intended to be completed and reviewed on GitHub before any paid hosting or production cron is activated.
 
@@ -22,7 +22,7 @@ This repository is intended to be completed and reviewed on GitHub before any pa
 - [x] Affiliate URL management and click redirect
 - [x] Chargily Pay V2 checkout integration
 - [x] Chargily webhook HMAC verification
-- [x] DZD pricing and configurable VIP price
+- [x] USD pricing and configurable VIP price
 - [x] Health endpoint
 - [x] Local PostgreSQL Docker setup
 - [x] GitHub CI workflow

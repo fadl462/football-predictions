@@ -5,7 +5,7 @@ This repository is now the Algeria-first build.
 ## Main changes
 
 - Algeria-first league priority
-- DZD pricing
+- USD pricing
 - Africa/Algiers timezone
 - Chargily Pay V2 integration
 - French Algeria UI foundation with Arabic-ready locale configuration

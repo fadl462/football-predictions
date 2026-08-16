@@ -1,4 +1,4 @@
-# DZ Football Edge — deployment checklist
+# The Match Desk — deployment checklist
 
 This file deliberately separates the **Git/code stage** from the **paid hosting stage**. You can finish and test the application locally before connecting Vercel, a hosted database or a live scheduler.
 

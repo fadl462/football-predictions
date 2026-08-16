@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       vip_prediction_count: { min: 1, max: 30 },
       min_confidence: { min: 50, max: 99 },
       vip_min_confidence: { min: 50, max: 99 },
-      vip_price_dzd: { min: 100, max: 1000000 },
+      vip_price_usd: { min: 1, max: 999 },
     };
     if (!(input.key in rules)) return NextResponse.json({ error: 'This setting is not editable from the admin panel.' }, { status: 400 });
     const value = Number(input.value);
@@ -78,7 +78,7 @@ export async function POST(req: Request) {
       await prisma.subscription.upsert({
         where: { userId: input.id },
         update: { status: input.subscriptionStatus, ...(input.subscriptionStatus === 'ACTIVE' ? { startsAt: new Date(), endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) } : {}) },
-        create: { userId: input.id, status: input.subscriptionStatus, provider: 'ADMIN', currency: 'DZD', startsAt: new Date(), endsAt: input.subscriptionStatus === 'ACTIVE' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null },
+        create: { userId: input.id, status: input.subscriptionStatus, provider: 'ADMIN', currency: process.env.PAYMENT_CURRENCY?.toUpperCase() || 'DZD', startsAt: new Date(), endsAt: input.subscriptionStatus === 'ACTIVE' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) : null },
       });
     }
     return NextResponse.json(user);

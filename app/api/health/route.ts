@@ -23,7 +23,7 @@ export async function GET() {
   const ready = process.env.DEMO_MODE === 'true' || checks.database === 'connected';
   return NextResponse.json({
     ok: ready,
-    service: 'DZ Football Edge',
+    service: 'The Match Desk',
     country: 'DZ',
     timezone: 'Africa/Algiers',
     algorithm: algorithmRules.version,

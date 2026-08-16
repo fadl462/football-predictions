@@ -11,7 +11,7 @@ export default function MobileNav() {
       <Link href="/" onClick={() => setOpen(false)}>Pronostics</Link>
       <Link href="/matches" onClick={() => setOpen(false)}>Matchs</Link>
       <Link href="/history" onClick={() => setOpen(false)}>Historique</Link>
-      <Link href="/pricing" onClick={() => setOpen(false)}>VIP</Link>
+      <Link href="/pricing" onClick={() => setOpen(false)}>Pro</Link><Link href="/about" onClick={() => setOpen(false)}>About</Link>
     </div>}
   </div>;
 }

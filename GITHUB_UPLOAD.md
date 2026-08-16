@@ -31,6 +31,6 @@ Upload the project root contents and replace the existing files. If the older re
 
 ## Commit message
 
-`Complete Algeria-first DZ Football Edge Git setup`
+`Complete Algeria-first The Match Desk Git setup`
 
 After this commit, the Git stage is complete. Vercel, production PostgreSQL, live Chargily credentials and hosted cron can be configured later.

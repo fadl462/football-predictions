@@ -1,4 +1,4 @@
-# DZ Football Edge 🇩🇿
+# The Match Desk 🇩🇿
 
 > **GitHub Preview:** the repository root includes a polished static `index.html` preview so GitHub Pages can display the actual product interface. The full Next.js application remains in `app/` and is intended for the later server deployment.
 
@@ -16,7 +16,7 @@ Europe-first football predictions platform with a featured Algeria market with a
 - Automatic prediction settlement and history
 - User registration/login with signed sessions
 - VIP access control
-- Chargily Pay V2 payment integration for DZD
+- Chargily Pay V2 payment integration for USD
 - Server-side webhook verification
 - Admin controls for settings, users/VIP, predictions, leagues and affiliates
 - Affiliate redirect/click tracking (`/go/<id>`)
@@ -39,13 +39,13 @@ API credentials and payment secrets are used only on the server. They are never 
 - Timezone: `Africa/Algiers`
 - Primary locale: `fr-DZ`
 - Prepared locales: `fr-DZ`, `ar-DZ`, `en`
-- Currency: DZD
+- Currency: USD
 - Priority: Ligue 1, Ligue 2, Coupe Nationale
 - Free picks/day: 3
 - VIP picks/day: 8
 - Free minimum confidence: 68%
 - VIP minimum confidence: 72%
-- VIP default price: 1,999 DZD / 30 days
+- VIP default price: 1,999 USD / 30 days
 
 ## Local development — no Vercel required
 
@@ -118,7 +118,7 @@ Do **not** upload `.env.local`, real API keys, payment secrets or production dat
 - `CHARGILY_SECRET_KEY`
 - `CHARGILY_API_BASE_URL`
 - `CHARGILY_PAYMENT_METHOD`
-- `VIP_PRICE_DZD`
+- `VIP_PRICE_USD`
 - `ADMIN_SEED_EMAIL`
 - `ADMIN_SEED_PASSWORD`
 - `DEFAULT_AFFILIATE_URL` (optional)
@@ -132,3 +132,6 @@ Predictions are informational and are not guarantees of outcomes. Betting/gambli
 ## Git-only completion
 
 The project can be reviewed locally without Vercel. See `GIT_STAGE_CHECKLIST.md` for the source-completion and verification status. Vercel, production PostgreSQL, live Chargily credentials and hosted cron are intentionally deferred until the Git version is fully approved.
+
+## Display currency
+The product UI and Pro pricing are displayed in **USD ($)**. The payment adapter is intentionally separate: when the production Algerian payment rail is activated, its supported settlement currency and amount are configured with `PAYMENT_CURRENCY` and `PAYMENT_AMOUNT`. This prevents the public USD price from being incorrectly sent to a provider that requires local settlement currency.

@@ -34,7 +34,7 @@ export default function AdminControls({ predictions, users, leagues, affiliates,
     <section className="card" style={{ marginTop: 14 }}>
       <h2>Automation settings</h2>
       <div className="adminFormGrid">
-        {[['free_prediction_count','Free picks/day','3'],['vip_prediction_count','VIP picks/day','8'],['min_confidence','Free confidence %','68'],['vip_min_confidence','VIP confidence %','72'],['vip_price_dzd','VIP price (DZD)','1999']].map(([key,label,defaultValue]) => { const current = settings.find(s => s.key === key)?.value || defaultValue; return <form key={key} onSubmit={e => { e.preventDefault(); const value = new FormData(e.currentTarget).get('value')?.toString() || defaultValue; run({ action:'setting', key, value }); }}><label>{label}<input name="value" defaultValue={current} inputMode="numeric" /></label><button className="btn" disabled={busy}>Save</button></form>; })}
+        {[['free_prediction_count','Free picks/day','3'],['vip_prediction_count','VIP picks/day','8'],['min_confidence','Free confidence %','68'],['vip_min_confidence','VIP confidence %','72'],['vip_price_usd','Pro price (USD)','9.99']].map(([key,label,defaultValue]) => { const current = settings.find(s => s.key === key)?.value || defaultValue; return <form key={key} onSubmit={e => { e.preventDefault(); const value = new FormData(e.currentTarget).get('value')?.toString() || defaultValue; run({ action:'setting', key, value }); }}><label>{label}<input name="value" defaultValue={current} inputMode="numeric" /></label><button className="btn" disabled={busy}>Save</button></form>; })}
       </div>
     </section>
 

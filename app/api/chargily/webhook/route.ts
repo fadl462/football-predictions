@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     const endsAt = new Date(startsAt); endsAt.setDate(endsAt.getDate() + 30);
     await prisma.subscription.upsert({
       where: { userId },
-      update: { status: 'ACTIVE', planCode: 'VIP_30_DAYS', provider: 'CHARGILY', providerReference: data.id, amount: Number(data.amount || 0), currency: 'DZD', startsAt, endsAt },
-      create: { userId, status: 'ACTIVE', planCode: 'VIP_30_DAYS', provider: 'CHARGILY', providerReference: data.id, amount: Number(data.amount || 0), currency: 'DZD', startsAt, endsAt },
+      update: { status: 'ACTIVE', planCode: 'VIP_30_DAYS', provider: 'CHARGILY', providerReference: data.id, amount: Number(data.amount || 0), currency: String(data.currency || process.env.PAYMENT_CURRENCY || 'DZD').toUpperCase(), startsAt, endsAt },
+      create: { userId, status: 'ACTIVE', planCode: 'VIP_30_DAYS', provider: 'CHARGILY', providerReference: data.id, amount: Number(data.amount || 0), currency: String(data.currency || process.env.PAYMENT_CURRENCY || 'DZD').toUpperCase(), startsAt, endsAt },
     });
   }
   if (event?.type === 'checkout.failed' || event?.type === 'checkout.canceled') {

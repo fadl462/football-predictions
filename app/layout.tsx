@@ -1,5 +1,15 @@
 import './globals.css';
-import {getSessionUser} from '@/lib/auth';
+import { getSessionUser } from '@/lib/auth';
+import { siteConfig } from '@/lib/config';
 import Link from 'next/link';
-export const metadata={title:'Football Edge | Daily Football Predictions',description:'Professional football predictions, match data and VIP picks.'};
-export default async function RootLayout({children}:{children:React.ReactNode}){const user=await getSessionUser();return <><header className="topbar"><div className="container nav"><Link className="brand" href="/"><span className="brandmark">F</span> FOOTBALL EDGE</Link><nav className="navlinks"><Link href="/">Predictions</Link><Link href="/matches">Matches</Link><Link href="/history">History</Link><Link href="/pricing">VIP</Link></nav><div className="actions">{user?.role==='ADMIN'&&<Link className="btn" href="/admin">Admin</Link>}{user?<Link className="btn primary" href="/vip">My VIP</Link>:<Link className="btn primary" href="/login">Sign in</Link>}<span className="mobileMenu">☰</span></div></div></header>{children}<footer className="footer"><div className="container footerGrid"><div>© 2026 Football Edge. Predictions are informational, not guarantees.</div><div>Built for speed • Mobile first • Data-driven</div></div></footer></>}
+
+export const metadata = {
+  title: 'DZ Football Edge | Pronostics football en Algérie',
+  description: 'Pronostics football gratuits et VIP, matchs et historique des résultats, avec priorité au football algérien.',
+  keywords: ['pronostics football Algérie', 'Ligue 1 Algérie', 'Ligue 2 Algérie', 'paris football Algérie', 'pronostics VIP'],
+};
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const user = await getSessionUser();
+  return <html lang="fr-DZ"><body><header className="topbar"><div className="container nav"><Link className="brand" href="/"><span className="brandmark">DZ</span> DZ FOOTBALL EDGE</Link><nav className="navlinks"><Link href="/">Pronostics</Link><Link href="/matches">Matchs</Link><Link href="/history">Historique</Link><Link href="/pricing">VIP</Link></nav><div className="actions">{user?.role==='ADMIN'&&<Link className="btn" href="/admin">Admin</Link>}{user?<Link className="btn primary" href="/vip">Mon VIP</Link>:<Link className="btn primary" href="/login">Connexion</Link>}<span className="mobileMenu">☰</span></div></div></header>{children}<footer className="footer"><div className="container footerGrid"><div>© 2026 DZ Football Edge. Pronostics à titre informatif — aucun résultat n’est garanti.</div><div>🇩🇿 Algérie • Mobile first • Données automatisées</div></div></footer></body></html>;
+}

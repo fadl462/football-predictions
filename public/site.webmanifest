@@ -1,1 +1,11 @@
-{"name":"Football Edge","short_name":"Football Edge","start_url":"/","display":"standalone","background_color":"#07111f","theme_color":"#07111f"}
+{
+  "name": "DZ Football Edge",
+  "short_name": "DZ Edge",
+  "description": "Pronostics football automatisés, gratuits et VIP pour l'Algérie.",
+  "lang": "fr-DZ",
+  "dir": "ltr",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#06101d",
+  "theme_color": "#06101d"
+}

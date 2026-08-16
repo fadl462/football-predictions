@@ -22,8 +22,10 @@ model Subscription {
   userId               String @unique
   user                 User @relation(fields: [userId], references: [id], onDelete: Cascade)
   planCode             String?
-  paystackCustomerCode String?
-  paystackSubscriptionCode String?
+  provider             String?
+  providerReference    String?
+  amount               Int?
+  currency             String @default("DZD")
   status               SubscriptionStatus @default(ACTIVE)
   startsAt             DateTime @default(now())
   endsAt               DateTime?
@@ -37,6 +39,7 @@ model League {
   name      String
   country   String?
   logo      String?
+  priority  Int @default(50)
   active    Boolean @default(true)
   createdAt DateTime @default(now())
   fixtures  Fixture[]
@@ -64,20 +67,20 @@ model Fixture {
 }
 
 model Prediction {
-  id           String @id @default(cuid())
-  fixtureId    String
-  fixture      Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
-  tier         PredictionTier
-  market       String
-  selection    String
-  confidence   Int
-  status       PredictionStatus @default(PENDING)
-  resultNote   String?
-  publishedAt  DateTime @default(now())
-  settledAt    DateTime?
-  algorithmVersion String @default("v1")
+  id                 String @id @default(cuid())
+  fixtureId          String
+  fixture            Fixture @relation(fields: [fixtureId], references: [id], onDelete: Cascade)
+  tier               PredictionTier
+  market             String
+  selection          String
+  confidence         Int
+  status             PredictionStatus @default(PENDING)
+  resultNote         String?
+  publishedAt        DateTime @default(now())
+  settledAt          DateTime?
+  algorithmVersion   String @default("dz-v2")
   manuallyOverridden Boolean @default(false)
-  createdAt    DateTime @default(now())
+  createdAt          DateTime @default(now())
   @@index([tier, publishedAt])
   @@unique([fixtureId, tier])
 }

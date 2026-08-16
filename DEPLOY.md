@@ -1,24 +1,51 @@
-# Deployment checklist
+# DZ Football Edge — Deployment
 
-## Vercel
-1. Push this folder to GitHub.
-2. Import the repository into Vercel.
-3. Add every variable from `.env.example`.
-4. Set `DEMO_MODE=false`.
-5. Use a production PostgreSQL URL.
-6. Run `npx prisma db push` once against the production database, then `npm run db:seed`.
-7. Change the seeded admin password before launch.
-8. Add the Paystack webhook URL as `https://YOUR_DOMAIN/api/paystack/webhook`.
+## 1. Database
+Use a managed PostgreSQL provider such as Neon, Supabase, Railway or another production PostgreSQL service.
 
-## Football API
-Use API-Football / API-Sports. The application calls the provider only from server-side code, so the API key never enters browser JavaScript.
+Set `DATABASE_URL` in Vercel.
 
-## Payment
-Create a recurring VIP plan in Paystack, then set `PAYSTACK_VIP_PLAN_CODE`. Set `PAYSTACK_SECRET_KEY` server-side. Set `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` only if you later add client-side Paystack UI.
+## 2. Football API
+Create an API-Football/API-Sports account and add `FOOTBALL_API_KEY` as a Vercel server environment variable. Never expose it through `NEXT_PUBLIC_*` variables.
 
-## Automation
-Use Vercel Cron or the included GitHub Actions workflow. For GitHub Actions, add repository secrets:
-- `SITE_URL`
+## 3. Chargily Pay
+Create a Chargily Pay application, complete the required verification for live mode, and set:
+
+- `CHARGILY_SECRET_KEY`
+- `CHARGILY_API_BASE_URL=https://pay.chargily.net/api/v2`
+- `VIP_PRICE_DZD=1999`
+
+The webhook endpoint is:
+
+`https://YOUR-DOMAIN/api/chargily/webhook`
+
+Register it in Chargily or allow the checkout creation request to provide it. Webhook signatures are verified server-side.
+
+## 4. Vercel
+Set:
+
+- `DATABASE_URL`
+- `AUTH_SECRET`
+- `NEXT_PUBLIC_APP_URL`
+- `FOOTBALL_API_KEY`
+- `FOOTBALL_API_BASE_URL`
 - `CRON_SECRET`
+- `CHARGILY_SECRET_KEY`
+- `CHARGILY_API_BASE_URL`
+- `VIP_PRICE_DZD`
+- `DEFAULT_AFFILIATE_URL`
+- `DEMO_MODE=false`
 
-The sync job imports fixtures, generates candidates, publishes the configured free-pick count and settles completed predictions.
+Then deploy.
+
+## 5. Database initialization
+After the first deployment, run the Prisma commands from a trusted development environment against the production database:
+
+```bash
+npx prisma generate
+npx prisma db push
+npm run db:seed
+```
+
+## 6. Cron
+`vercel.json` schedules the sync twice daily. For high-volume fixtures, move to an external scheduler that can call `/api/cron/sync` every 1–3 hours with the `Authorization: Bearer <CRON_SECRET>` header.

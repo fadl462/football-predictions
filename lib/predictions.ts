@@ -14,12 +14,34 @@ export type Candidate = {
   priority: number;
 };
 
-const priorityForLeague = (league: string) => {
-  const normalized = league.toLowerCase();
-  if (normalized.includes('ligue 1')) return 100;
-  if (normalized.includes('ligue 2')) return 95;
-  if (normalized.includes('coupe nationale')) return 90;
-  if (normalized.includes('caf')) return 80;
+const priorityForLeague = (league: string, country = '') => {
+  const normalized = `${league} ${country}`.toLowerCase();
+  if (normalized.includes('champions league')) return 140;
+  if (normalized.includes('premier league')) return 135;
+  if (normalized.includes('la liga')) return 134;
+  if (normalized.includes('serie a')) return 133;
+  if (normalized.includes('bundesliga')) return 132;
+  if (normalized.includes('ligue 1') && !normalized.includes('algeria')) return 131;
+  if (normalized.includes('europa league')) return 129;
+  if (normalized.includes('conference league')) return 128;
+  if (normalized.includes('eredivisie')) return 124;
+  if (normalized.includes('primeira liga')) return 123;
+  if (normalized.includes('championship')) return 118;
+  if (normalized.includes('2. bundesliga') || normalized.includes('2 bundesliga')) return 106;
+  if (normalized.includes('ligue 2') && !normalized.includes('algeria')) return 105;
+  if (normalized.includes('scottish premiership')) return 104;
+  if (normalized.includes('super lig')) return 103;
+  if (normalized.includes('jupiler')) return 102;
+  if (normalized.includes('copa libertadores')) return 98;
+  if (normalized.includes('brasileirao') || normalized.includes('brasileirão')) return 97;
+  if (normalized.includes('liga mx')) return 95;
+  if (normalized.includes('mls')) return 94;
+  if (normalized.includes('saudi pro league')) return 93;
+  if (normalized.includes('j1 league')) return 92;
+  if (normalized.includes('caf')) return 88;
+  if (normalized.includes('algeria') && normalized.includes('ligue 1')) return 84;
+  if (normalized.includes('algeria') && normalized.includes('ligue 2')) return 82;
+  if (normalized.includes('coupe nationale') || normalized.includes("coupe d'algerie") || normalized.includes("coupe d'algérie")) return 80;
   return 50;
 };
 
@@ -31,21 +53,23 @@ function scoreCandidate(raw: any) {
   const away = Number(p?.percent?.away || 0);
   if (![home, draw, away].every(Number.isFinite)) return null;
 
-  const singles: [string, number][] = [
+  const singles = [
     ['Home Win', home],
     ['Draw', draw],
     ['Away Win', away],
-  ].sort((a, b) => b[1] - a[1]);
+  ] as [string, number][];
+  singles.sort((a, b) => b[1] - a[1]);
   const top = singles[0];
   if (top[1] >= siteConfig.minConfidenceDefault) {
     return { market: '1X2', selection: top[0], confidence: Math.round(top[1]) };
   }
 
-  const doubles: [string, number][] = [
+  const doubles = [
     ['Home or Draw', home + draw],
     ['Away or Draw', away + draw],
     ['Home or Away', home + away],
-  ].sort((a, b) => b[1] - a[1]);
+  ] as [string, number][];
+  doubles.sort((a, b) => b[1] - a[1]);
   const bestDouble = doubles[0];
   if (bestDouble[1] >= siteConfig.minConfidenceDefault) {
     return { market: 'Double Chance', selection: bestDouble[0], confidence: Math.min(99, Math.round(bestDouble[1])) };
@@ -66,7 +90,7 @@ export async function generatePredictionCandidate(f: any): Promise<Candidate | n
       league,
       country: f.league.country,
       kickoff: f.fixture.date,
-      priority: priorityForLeague(league),
+      priority: priorityForLeague(league, f.league.country),
       ...s,
     };
   } catch {
@@ -87,7 +111,7 @@ export function settlePrediction(selection: string, home: number | null, away: n
 
 export const algorithmRules = {
   version: 'dz-v2',
-  description: 'Algeria-first ranking with confidence thresholds and league priority.',
+  description: 'Europe-first global football ranking, followed by strong global competitions and a featured Algeria market.',
   freeMinimumConfidence: siteConfig.minConfidenceDefault,
   vipMinimumConfidence: siteConfig.vipMinConfidenceDefault,
 };

@@ -7,7 +7,7 @@ This repository is intended to be completed and reviewed on GitHub before any pa
 - [x] Next.js + TypeScript application
 - [x] PostgreSQL + Prisma schema
 - [x] Server-side football API integration
-- [x] Algeria-first fixture filtering and league priority
+- [x] Europe-first curated fixture priority with Algeria featured as Tier 04
 - [x] Versioned prediction engine (`dz-v2`)
 - [x] Free/VIP prediction tiers
 - [x] Prediction history and settlement
@@ -48,3 +48,13 @@ This repository is intended to be completed and reviewed on GitHub before any pa
 6. Only then configure production database, Vercel, live Chargily and hosted cron.
 
 Never commit `.env.local`, API keys, database credentials, or production payment secrets.
+
+## Competition priority board
+
+1. Europe Elite — Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Eredivisie
+2. UEFA — Champions League, Europa League, Conference League
+3. European depth — Championship, 2. Bundesliga, Ligue 2, Scottish Premiership, Süper Lig, Jupiler Pro League
+4. Global advanced — Libertadores, Brasileirão, Argentina Primera, Liga MX, MLS, Saudi Pro League, J1 League, CAF
+5. Algeria featured — Ligue 1 Mobilis, Ligue 2 and Coupe d'Algérie
+
+The prediction engine uses the same hierarchy as the UI so the product does not merely look Europe-first; the automated candidate ranking follows it as well.

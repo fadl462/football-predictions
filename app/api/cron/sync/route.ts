@@ -16,8 +16,9 @@ export async function GET(req:Request){
   for(const date of [todayInAlgeria(),dateOffset(1)]){
    const data=await getFixtures(date);
    for(const f of data.response||[]){
-    if(f.league.country!=='Algeria') continue;
-    const priority = f.league.name.includes('Ligue 1')?100:f.league.name.includes('Ligue 2')?95:f.league.name.includes('Coupe')?90:60;
+    const leagueName=String(f.league.name||''); const country=String(f.league.country||''); const normalized=`${leagueName} ${country}`.toLowerCase();
+    const priority = normalized.includes('champions league')?140 : normalized.includes('premier league')?135 : normalized.includes('la liga')?134 : normalized.includes('serie a')?133 : normalized.includes('bundesliga')?132 : (normalized.includes('ligue 1')&&!normalized.includes('algeria'))?131 : normalized.includes('europa league')?129 : normalized.includes('conference league')?128 : normalized.includes('eredivisie')?124 : normalized.includes('primeira liga')?123 : normalized.includes('championship')?118 : normalized.includes('2. bundesliga')||normalized.includes('2 bundesliga')?106 : (normalized.includes('ligue 2')&&!normalized.includes('algeria'))?105 : normalized.includes('copa libertadores')?98 : (normalized.includes('brasileirao')||normalized.includes('brasileirão'))?97 : normalized.includes('liga mx')?95 : normalized.includes('mls')?94 : normalized.includes('saudi pro league')?93 : normalized.includes('j1 league')?92 : normalized.includes('caf')?88 : (normalized.includes('algeria')&&normalized.includes('ligue 1'))?84 : (normalized.includes('algeria')&&normalized.includes('ligue 2'))?82 : (normalized.includes('coupe nationale')||normalized.includes("coupe d'algerie")||normalized.includes("coupe d'algérie"))?80 : 50;
+    if (priority < 80) continue;
     const league=await prisma.league.upsert({where:{externalId:f.league.id},update:{name:f.league.name,country:f.league.country,logo:f.league.logo,sport:'FOOTBALL',priority},create:{externalId:f.league.id,name:f.league.name,country:f.league.country,logo:f.league.logo,sport:'FOOTBALL',priority}});
     await prisma.fixture.upsert({where:{externalId:f.fixture.id},update:{leagueId:league.id,kickoff:new Date(f.fixture.date),homeTeam:f.teams.home.name,awayTeam:f.teams.away.name,homeLogo:f.teams.home.logo,awayLogo:f.teams.away.logo,sport:'FOOTBALL',status:f.fixture.status.short,homeScore:f.goals.home,awayScore:f.goals.away,rawJson:f},create:{externalId:f.fixture.id,leagueId:league.id,kickoff:new Date(f.fixture.date),homeTeam:f.teams.home.name,awayTeam:f.teams.away.name,homeLogo:f.teams.home.logo,awayLogo:f.teams.away.logo,sport:'FOOTBALL',status:f.fixture.status.short,homeScore:f.goals.home,awayScore:f.goals.away,rawJson:f}});
     imported++;
@@ -64,7 +65,7 @@ export async function GET(req:Request){
     }
   }
   await prisma.subscription.updateMany({where:{status:{in:['ACTIVE','NON_RENEWING']},endsAt:{lt:new Date()}},data:{status:'EXPIRED'}});
-  await prisma.apiLog.create({data:{operation:'algeria-daily-sync',success:true,message:`Imported ${imported}; free ${publishedFree}; VIP ${publishedVip}; settled ${settled}`}});
-  return NextResponse.json({ok:true,imported,publishedFree,publishedVip,settled,algorithm:algorithmRules.version,priority:'Algeria'});
- }catch(e:any){await prisma.apiLog.create({data:{operation:'algeria-daily-sync',success:false,message:e.message}}).catch(()=>{});return NextResponse.json({ok:false,error:e.message},{status:500});}
+  await prisma.apiLog.create({data:{operation:'global-football-daily-sync',success:true,message:`Imported ${imported}; free ${publishedFree}; VIP ${publishedVip}; settled ${settled}`}});
+  return NextResponse.json({ok:true,imported,publishedFree,publishedVip,settled,algorithm:algorithmRules.version,priority:'Europe-first / Algeria-featured'});
+ }catch(e:any){await prisma.apiLog.create({data:{operation:'global-football-daily-sync',success:false,message:e.message}}).catch(()=>{});return NextResponse.json({ok:false,error:e.message},{status:500});}
 }

@@ -3,14 +3,14 @@
 > **GitHub Preview:** the repository root includes a polished static `index.html` preview so GitHub Pages can display the actual product interface. The full Next.js application remains in `app/` and is intended for the later server deployment.
 
 
-Algeria-first football predictions platform with automated fixtures, free predictions, VIP predictions, historical results, affiliate management and an admin control center.
+Europe-first football predictions platform with a featured Algeria market with automated fixtures, free predictions, VIP predictions, historical results, affiliate management and an admin control center.
 
 ## What is already in the Git project
 
 - Next.js + TypeScript full-stack application
 - PostgreSQL + Prisma data model
 - API-Football / API-Sports integration
-- Algeria-first league prioritisation
+- Europe-first competition prioritisation with Algeria as a featured market
 - Automated free and VIP prediction generation
 - Versioned prediction engine (`dz-v2`)
 - Automatic prediction settlement and history
@@ -29,7 +29,7 @@ Algeria-first football predictions platform with automated fixtures, free predic
 
 ## Architecture
 
-**API-Football → PostgreSQL → Algeria-first prediction engine → Free/VIP publication → settlement → history**
+**API-Football → PostgreSQL → Europe-first priority engine → Free/VIP publication → settlement → history**
 
 API credentials and payment secrets are used only on the server. They are never placed in `NEXT_PUBLIC_*` variables.
 
@@ -87,7 +87,7 @@ The admin account uses the values from `ADMIN_SEED_EMAIL` and `ADMIN_SEED_PASSWO
 Authorization: Bearer <CRON_SECRET>
 ```
 
-The sync process imports Algeria fixtures, prioritises leagues, requests prediction inputs, publishes the configured free/VIP tiers, settles completed predictions, expires VIP subscriptions and records an operational log.
+The sync process imports curated priority fixtures across Europe, UEFA, global competitions and Algeria, ranks leagues by priority, requests prediction inputs, publishes the configured free/VIP tiers, settles completed predictions, expires VIP subscriptions and records an operational log.
 
 ## Health check
 

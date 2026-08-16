@@ -12,8 +12,8 @@ export async function homeData() {
   const start = startOfAlgeriaDay();
   const end = new Date(start); end.setDate(end.getDate() + 1); end.setMilliseconds(-1);
   const [fixtures, predictions, affiliate, settings] = await Promise.all([
-    prisma.fixture.findMany({ where: { kickoff: { gte: start, lte: end }, league: { active: true } }, include: { league: true }, orderBy: { kickoff: 'asc' }, take: 16 }),
-    prisma.prediction.findMany({ where: { tier: 'FREE', publishedAt: { gte: start, lte: end } }, include: { fixture: { include: { league: true } } }, orderBy: { confidence: 'desc' }, take: 10 }),
+    prisma.fixture.findMany({ where: { kickoff: { gte: start, lte: end }, league: { active: true } }, include: { league: true }, orderBy: [{ league: { priority: 'desc' } }, { kickoff: 'asc' }], take: 24 }),
+    prisma.prediction.findMany({ where: { tier: 'FREE', publishedAt: { gte: start, lte: end } }, include: { fixture: { include: { league: true } } }, orderBy: [{ confidence: 'desc' }], take: 10 }),
     prisma.affiliateLink.findFirst({ where: { active: true }, orderBy: { createdAt: 'asc' }, select: { id: true, name: true } }),
     prisma.setting.findMany({ where: { key: { in: ['free_prediction_count', 'vip_prediction_count', 'vip_price_dzd'] } } }),
   ]);

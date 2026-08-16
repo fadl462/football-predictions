@@ -21,7 +21,7 @@ async function main() {
     ['timezone', 'Africa/Algiers'],
     ['locale', 'fr-DZ'],
     ['currency', 'DZD'],
-    ['priority_leagues', 'Ligue 1,Ligue 2,Coupe Nationale'],
+    ['priority_leagues', 'UEFA Champions League,Premier League,La Liga,Serie A,Bundesliga,Ligue 1,Europa League,Conference League,Eredivisie,Primeira Liga,Algeria Ligue 1,Algeria Ligue 2,Coupe Nationale'],
     ['free_prediction_count', '3'],
     ['vip_prediction_count', '8'],
     ['min_confidence', '68'],

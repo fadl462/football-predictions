@@ -11,7 +11,7 @@ export const siteConfig = {
   vipDailyDefault: 8,
   minConfidenceDefault: 68,
   vipMinConfidenceDefault: 72,
-  priorityLeagues: ['Ligue 1', 'Ligue 2', 'Coupe Nationale'],
+  priorityLeagues: ['UEFA Champions League', 'Premier League', 'La Liga', 'Serie A', 'Bundesliga', 'Ligue 1', 'Europa League', 'Conference League', 'Eredivisie', 'Primeira Liga', 'Algeria Ligue 1', 'Algeria Ligue 2', 'Coupe Nationale'],
   paymentProvider: 'Chargily Pay',
 };
 

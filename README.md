@@ -1,5 +1,8 @@
 # DZ Football Edge 🇩🇿
 
+> **GitHub Preview:** the repository root includes a polished static `index.html` preview so GitHub Pages can display the actual product interface. The full Next.js application remains in `app/` and is intended for the later server deployment.
+
+
 Algeria-first football predictions platform with automated fixtures, free predictions, VIP predictions, historical results, affiliate management and an admin control center.
 
 ## What is already in the Git project

@@ -27,7 +27,7 @@ export async function GET(req:Request){
   const vipCountSetting=await prisma.setting.findUnique({where:{key:'vip_prediction_count'}}); const vipCount=Number(vipCountSetting?.value||8);
   const minSetting=await prisma.setting.findUnique({where:{key:'min_confidence'}}); const minConfidence=Number(minSetting?.value||algorithmRules.freeMinimumConfidence);
   const vipMinSetting=await prisma.setting.findUnique({where:{key:'vip_min_confidence'}}); const vipMin=Number(vipMinSetting?.value||algorithmRules.vipMinimumConfidence);
-  const fixtures=await prisma.fixture.findMany({where:{kickoff:{gte:new Date(),lte:new Date(Date.now()+48*60*60*1000)},status:{in:['NS','TBD']}},include:{league:true},take:100,orderBy:[{league:{priority:'desc'}},{kickoff:'asc'}]});
+  const fixtures=await prisma.fixture.findMany({where:{kickoff:{gte:new Date(),lte:new Date(Date.now()+48*60*60*1000)},status:{in:['NS','TBD']},league:{active:true}},include:{league:true},take:100,orderBy:[{league:{priority:'desc'}},{kickoff:'asc'}]});
   const candidates=[];
   for(const f of fixtures){const c=await generatePredictionCandidate({fixture:{id:f.externalId,date:f.kickoff.toISOString()},teams:{home:{name:f.homeTeam},away:{name:f.awayTeam}},league:{name:f.league.name,country:f.league.country}});if(c)candidates.push({...c,fixtureDbId:f.id});}
   candidates.sort((a,b)=>(b.priority*10+b.confidence)-(a.priority*10+a.confidence));
@@ -42,10 +42,26 @@ export async function GET(req:Request){
     }
   }
   const pending=await prisma.prediction.findMany({where:{status:'PENDING'},include:{fixture:true},take:300});
+  const finalStatuses = new Set(['FT','AET','PEN','AWD','WO']);
+  const voidStatuses = new Set(['CANC','PST','ABD','SUSP','INT','TBD']);
   for(const p of pending){
-    let home=p.fixture.homeScore, away=p.fixture.awayScore;
-    if(home===null||away===null){try{const fresh=await getFixture(p.fixture.externalId);const f=fresh?.response?.[0];if(f){home=f.goals.home;away=f.goals.away;await prisma.fixture.update({where:{id:p.fixtureId},data:{status:f.fixture.status.short,homeScore:home,awayScore:away}})}}catch{}}
-    const status=settlePrediction(p.selection,home,away); if(status!=='PENDING'){await prisma.prediction.update({where:{id:p.id},data:{status,settledAt:new Date()}});settled++;}
+    let home=p.fixture.homeScore, away=p.fixture.away, fixtureStatus=p.fixture.status;
+    try{
+      const fresh=await getFixture(p.fixture.externalId);
+      const f=fresh?.response?.[0];
+      if(f){
+        home=f.goals.home; away=f.goals.away; fixtureStatus=f.fixture.status.short;
+        await prisma.fixture.update({where:{id:p.fixtureId},data:{status:fixtureStatus,homeScore:home,awayScore:away,rawJson:f}});
+      }
+    }catch{}
+    if(voidStatuses.has(fixtureStatus)){
+      await prisma.prediction.update({where:{id:p.id},data:{status:'VOID',settledAt:new Date(),resultNote:`Fixture status ${fixtureStatus}`}}); settled++; continue;
+    }
+    if(!finalStatuses.has(fixtureStatus)) continue;
+    const status=settlePrediction(p.selection,home,away);
+    if(status!=='PENDING'){
+      await prisma.prediction.update({where:{id:p.id},data:{status,settledAt:new Date()}}); settled++;
+    }
   }
   await prisma.subscription.updateMany({where:{status:{in:['ACTIVE','NON_RENEWING']},endsAt:{lt:new Date()}},data:{status:'EXPIRED'}});
   await prisma.apiLog.create({data:{operation:'algeria-daily-sync',success:true,message:`Imported ${imported}; free ${publishedFree}; VIP ${publishedVip}; settled ${settled}`}});

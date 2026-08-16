@@ -26,19 +26,31 @@ const priorityForLeague = (league: string) => {
 function scoreCandidate(raw: any) {
   const p = raw?.response?.[0]?.predictions;
   if (!p) return null;
-  const probs: [string, number][] = [
-    ['Home Win', Number(p?.percent?.home || 0)],
-    ['Draw', Number(p?.percent?.draw || 0)],
-    ['Away Win', Number(p?.percent?.away || 0)],
-  ];
-  probs.sort((a, b) => b[1] - a[1]);
-  const top = probs[0];
-  if (top[1] >= 68) return { market: '1X2', selection: top[0], confidence: Math.round(top[1]) };
-  return {
-    market: 'Double Chance',
-    selection: top[0] === 'Home Win' ? 'Home or Draw' : top[0] === 'Away Win' ? 'Away or Draw' : 'Home or Away',
-    confidence: Math.min(88, Math.round(Math.max(...probs.map(x => x[1])) + 15)),
-  };
+  const home = Number(p?.percent?.home || 0);
+  const draw = Number(p?.percent?.draw || 0);
+  const away = Number(p?.percent?.away || 0);
+  if (![home, draw, away].every(Number.isFinite)) return null;
+
+  const singles: [string, number][] = [
+    ['Home Win', home],
+    ['Draw', draw],
+    ['Away Win', away],
+  ].sort((a, b) => b[1] - a[1]);
+  const top = singles[0];
+  if (top[1] >= siteConfig.minConfidenceDefault) {
+    return { market: '1X2', selection: top[0], confidence: Math.round(top[1]) };
+  }
+
+  const doubles: [string, number][] = [
+    ['Home or Draw', home + draw],
+    ['Away or Draw', away + draw],
+    ['Home or Away', home + away],
+  ].sort((a, b) => b[1] - a[1]);
+  const bestDouble = doubles[0];
+  if (bestDouble[1] >= siteConfig.minConfidenceDefault) {
+    return { market: 'Double Chance', selection: bestDouble[0], confidence: Math.min(99, Math.round(bestDouble[1])) };
+  }
+  return null;
 }
 
 export async function generatePredictionCandidate(f: any): Promise<Candidate | null> {

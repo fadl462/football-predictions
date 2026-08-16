@@ -6,7 +6,7 @@ export const demoMatches = [
 ];
 export const demoFree = [
   { id: 'p1', fixtureId: 101, league: 'Ligue 1 Mobilis', home: 'MC Alger', away: 'CR Belouizdad', kickoff: demoMatches[0].kickoff, market: 'Double Chance', selection: 'MC Alger or Draw', confidence: 79, status: 'PENDING' },
-  { id: 'p2', fixtureId: 102, league: 'Ligue 1 Mobilis', home: 'JS Kabylie', away: 'USM Alger', kickoff: demoMatches[1].kickoff, market: 'Over/Under', selection: 'Over 1.5 Goals', confidence: 76, status: 'PENDING' },
+  { id: 'p2', fixtureId: 102, league: 'Ligue 1 Mobilis', home: 'JS Kabylie', away: 'USM Alger', kickoff: demoMatches[1].kickoff, market: 'Double Chance', selection: 'JS Kabylie or Draw', confidence: 76, status: 'PENDING' },
   { id: 'p3', fixtureId: 103, league: 'Ligue 1 Mobilis', home: 'ES Sétif', away: 'CS Constantine', kickoff: demoMatches[2].kickoff, market: '1X2', selection: 'Home Win', confidence: 72, status: 'PENDING' },
 ];
 export const demoHistory = [

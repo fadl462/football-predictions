@@ -34,7 +34,7 @@ export default function AdminControls({ predictions, users, leagues, affiliates,
     <section className="card" style={{ marginTop: 14 }}>
       <h2>Automation settings</h2>
       <div className="adminFormGrid">
-        {[['free_prediction_count','Free picks/day','3'],['vip_prediction_count','VIP picks/day','8'],['min_confidence','Free confidence %','68'],['vip_min_confidence','VIP confidence %','72']].map(([key,label,defaultValue]) => { const current = settings.find(s => s.key === key)?.value || defaultValue; return <form key={key} onSubmit={e => { e.preventDefault(); const value = new FormData(e.currentTarget).get('value')?.toString() || defaultValue; run({ action:'setting', key, value }); }}><label>{label}<input name="value" defaultValue={current} inputMode="numeric" /></label><button className="btn" disabled={busy}>Save</button></form>; })}
+        {[['free_prediction_count','Free picks/day','3'],['vip_prediction_count','VIP picks/day','8'],['min_confidence','Free confidence %','68'],['vip_min_confidence','VIP confidence %','72'],['vip_price_dzd','VIP price (DZD)','1999']].map(([key,label,defaultValue]) => { const current = settings.find(s => s.key === key)?.value || defaultValue; return <form key={key} onSubmit={e => { e.preventDefault(); const value = new FormData(e.currentTarget).get('value')?.toString() || defaultValue; run({ action:'setting', key, value }); }}><label>{label}<input name="value" defaultValue={current} inputMode="numeric" /></label><button className="btn" disabled={busy}>Save</button></form>; })}
       </div>
     </section>
 
@@ -56,7 +56,7 @@ export default function AdminControls({ predictions, users, leagues, affiliates,
 
     <section className="card" style={{ marginTop: 14 }}>
       <h2>League controls</h2>
-      {leagues.map(l => <div className="fixture" key={l.id}><div><b>{l.name}</b><br/><span className="muted">Priority {l.priority}</span></div><button className="btn" disabled={busy} onClick={() => fetch('/api/admin/league',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:l.id,active:!l.active})}).then(()=>location.reload())}>{l.active?'Disable':'Enable'}</button></div>)}
+      {leagues.map(l => <div className="fixture" key={l.id}><div><b>{l.name}</b><br/><span className="muted">Priority {l.priority}</span></div><form onSubmit={e=>{e.preventDefault();const fd=new FormData(e.currentTarget);fetch('/api/admin/league',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:l.id,active:!l.active,priority:Number(fd.get('priority'))})}).then(()=>location.reload())}}><input name="priority" type="number" min="0" max="1000" defaultValue={l.priority}/><button className="btn" disabled={busy}>{l.active?'Disable':'Enable'}</button></form></div>)}
     </section>
   </div>;
 }

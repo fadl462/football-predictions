@@ -4,10 +4,10 @@ import bcrypt from 'bcryptjs';
 import { prisma } from './prisma';
 
 function getAuthSecret() {
-  const value = process.env.AUTH_SECRET;
-  if (value) return new TextEncoder().encode(value);
-  if (process.env.NODE_ENV !== 'production') return new TextEncoder().encode('local-development-secret-change-me');
-  throw new Error('AUTH_SECRET is not configured.');
+  const value = process.env.AUTH_SECRET?.trim();
+  if (value && value.length >= 32) return new TextEncoder().encode(value);
+  if (process.env.NODE_ENV !== 'production') return new TextEncoder().encode('local-development-secret-change-me-32chars');
+  throw new Error('AUTH_SECRET must be configured with at least 32 characters.');
 }
 
 export async function hashPassword(password: string) { return bcrypt.hash(password, 12); }

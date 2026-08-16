@@ -28,7 +28,24 @@ export async function POST(req: Request) {
 
   if (input.action === 'setting') {
     if (!input.key || input.value === undefined) return NextResponse.json({ error: 'Setting key and value are required.' }, { status: 400 });
-    return NextResponse.json(await prisma.setting.upsert({ where: { key: input.key }, update: { value: input.value }, create: { key: input.key, value: input.value } }));
+    const rules: Record<string, { min: number; max: number }> = {
+      free_prediction_count: { min: 1, max: 10 },
+      vip_prediction_count: { min: 1, max: 30 },
+      min_confidence: { min: 50, max: 99 },
+      vip_min_confidence: { min: 50, max: 99 },
+      vip_price_dzd: { min: 100, max: 1000000 },
+    };
+    if (!(input.key in rules)) return NextResponse.json({ error: 'This setting is not editable from the admin panel.' }, { status: 400 });
+    const value = Number(input.value);
+    if (!Number.isInteger(value) || value < rules[input.key].min || value > rules[input.key].max) return NextResponse.json({ error: `Invalid value for ${input.key}.` }, { status: 400 });
+    if (input.key === 'vip_min_confidence' || input.key === 'min_confidence') {
+      const otherKey = input.key === 'vip_min_confidence' ? 'min_confidence' : 'vip_min_confidence';
+      const fallback = input.key === 'vip_min_confidence' ? 68 : 72;
+      const other = Number((await prisma.setting.findUnique({ where: { key: otherKey } }))?.value || fallback);
+      if (input.key === 'vip_min_confidence' && value < other) return NextResponse.json({ error: 'VIP confidence cannot be lower than free confidence.' }, { status: 400 });
+      if (input.key === 'min_confidence' && value > other) return NextResponse.json({ error: 'Free confidence cannot exceed VIP confidence.' }, { status: 400 });
+    }
+    return NextResponse.json(await prisma.setting.upsert({ where: { key: input.key }, update: { value: String(value) }, create: { key: input.key, value: String(value) } }));
   }
 
   if (input.action === 'affiliate') {

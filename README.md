@@ -124,3 +124,8 @@ Do **not** upload `.env.local`, real API keys, payment secrets or production dat
 ## Important production note
 
 Predictions are informational and are not guarantees of outcomes. Betting/gambling availability, affiliate arrangements, advertising rules and applicable Algerian laws/regulations should be reviewed before launch.
+
+
+## Git-only completion
+
+The project can be reviewed locally without Vercel. See `GIT_STAGE_CHECKLIST.md` for the source-completion and verification status. Vercel, production PostgreSQL, live Chargily credentials and hosted cron are intentionally deferred until the Git version is fully approved.

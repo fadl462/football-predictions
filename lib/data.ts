@@ -8,18 +8,23 @@ const startOfAlgeriaDay = () => {
 };
 
 export async function homeData() {
-  if (process.env.DEMO_MODE === 'true' || !process.env.DATABASE_URL) return { matches: demoMatches, predictions: demoFree, affiliate: null };
+  if (process.env.DEMO_MODE === 'true' || !process.env.DATABASE_URL) return { matches: demoMatches, predictions: demoFree, affiliate: null, freeCount: 3, vipCount: 8, vipPrice: 1999 };
   const start = startOfAlgeriaDay();
   const end = new Date(start); end.setDate(end.getDate() + 1); end.setMilliseconds(-1);
-  const [fixtures, predictions, affiliate] = await Promise.all([
-    prisma.fixture.findMany({ where: { kickoff: { gte: start, lte: end } }, include: { league: true }, orderBy: { kickoff: 'asc' }, take: 16 }),
-    prisma.prediction.findMany({ where: { tier: 'FREE', publishedAt: { gte: start, lte: end } }, include: { fixture: { include: { league: true } } }, orderBy: { confidence: 'desc' }, take: 3 }),
+  const [fixtures, predictions, affiliate, settings] = await Promise.all([
+    prisma.fixture.findMany({ where: { kickoff: { gte: start, lte: end }, league: { active: true } }, include: { league: true }, orderBy: { kickoff: 'asc' }, take: 16 }),
+    prisma.prediction.findMany({ where: { tier: 'FREE', publishedAt: { gte: start, lte: end } }, include: { fixture: { include: { league: true } } }, orderBy: { confidence: 'desc' }, take: 10 }),
     prisma.affiliateLink.findFirst({ where: { active: true }, orderBy: { createdAt: 'asc' }, select: { id: true, name: true } }),
+    prisma.setting.findMany({ where: { key: { in: ['free_prediction_count', 'vip_prediction_count', 'vip_price_dzd'] } } }),
   ]);
+  const freeCount = Number(settings.find(s => s.key === 'free_prediction_count')?.value || 3);
   return {
     matches: fixtures.map(f => ({ ...f, league: f.league.name, country: f.league.country })),
-    predictions: predictions.map(p => ({ ...p, home: p.fixture.homeTeam, away: p.fixture.awayTeam, kickoff: p.fixture.kickoff.toISOString(), league: p.fixture.league.name })),
+    predictions: predictions.slice(0, freeCount).map(p => ({ ...p, home: p.fixture.homeTeam, away: p.fixture.awayTeam, kickoff: p.fixture.kickoff.toISOString(), league: p.fixture.league.name })),
     affiliate,
+    freeCount,
+    vipCount: Number(settings.find(s => s.key === 'vip_prediction_count')?.value || 8),
+    vipPrice: Number(settings.find(s => s.key === 'vip_price_dzd')?.value || 1999),
   };
 }
 

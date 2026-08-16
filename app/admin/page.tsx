@@ -8,10 +8,11 @@ export default async function Admin() {
   const admin = await requireAdmin();
   if (!admin) redirect('/login');
 
-  const [userCount, users, predictions, activeVip, affiliates, settings, leagues, win, loss] = await Promise.all([
+  const [userCount, users, predictions, predictionCount, activeVip, affiliates, settings, leagues, win, loss] = await Promise.all([
     prisma.user.count(),
     prisma.user.findMany({ select: { id: true, email: true, role: true, subscription: { select: { status: true } } }, orderBy: { createdAt: 'desc' }, take: 50 }),
     prisma.prediction.findMany({ include: { fixture: true }, orderBy: { publishedAt: 'desc' }, take: 20 }),
+    prisma.prediction.count(),
     prisma.subscription.count({ where: { status: 'ACTIVE' } }),
     prisma.affiliateLink.findMany({ orderBy: { createdAt: 'desc' } }),
     prisma.setting.findMany(),
@@ -30,7 +31,7 @@ export default async function Admin() {
       <div className="dashCards">
         <div className="dashCard"><span className="muted">Users</span><br/><b>{userCount}</b></div>
         <div className="dashCard"><span className="muted">VIP active</span><br/><b>{activeVip}</b></div>
-        <div className="dashCard"><span className="muted">Predictions</span><br/><b>{predictions.length}</b></div>
+        <div className="dashCard"><span className="muted">Predictions</span><br/><b>{predictionCount}</b></div>
         <div className="dashCard"><span className="muted">Record</span><br/><b>{win}–{loss}</b></div>
       </div>
 

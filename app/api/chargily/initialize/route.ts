@@ -7,7 +7,9 @@ export async function POST() {
   if (!user) return NextResponse.json({ error: 'Connexion requise' }, { status: 401 });
   const key = process.env.CHARGILY_SECRET_KEY;
   if (!key) return NextResponse.json({ error: 'CHARGILY_SECRET_KEY n’est pas configurée.' }, { status: 503 });
-  const amount = Number(process.env.VIP_PRICE_DZD || 1999);
+  const configuredPrice = await prisma.setting.findUnique({ where: { key: 'vip_price_dzd' } });
+  const amount = Number(configuredPrice?.value || process.env.VIP_PRICE_DZD || 1999);
+  if (!Number.isInteger(amount) || amount < 100) return NextResponse.json({ error: 'VIP_PRICE_DZD must be an integer of at least 100 DZD.' }, { status: 500 });
   const base = process.env.CHARGILY_API_BASE_URL || 'https://pay.chargily.net/api/v2';
   const app = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const r = await fetch(`${base}/checkouts`, {
@@ -21,6 +23,7 @@ export async function POST() {
       failure_url: `${app}/pricing?payment=failed`,
       webhook_endpoint: `${app}/api/chargily/webhook`,
       locale: 'fr',
+      chargily_pay_fees_allocation: process.env.CHARGILY_FEE_ALLOCATION || 'customer',
       description: 'DZ Football Edge — accès VIP 30 jours',
       metadata: { user_id: user.id, email: user.email, plan: 'VIP_30_DAYS' },
     }),
